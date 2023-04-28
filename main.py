@@ -1,22 +1,34 @@
 import copy
 
+def compressValue(v, v_bar):
 
-def closestBinPow(x):
-    i = 1
-    while (i < x):
-        i *= 2
-    return i
+    low = 0
+    high = len(v_bar) - 1
 
-def makeTree(a):
-    for i in range(len(a), closestBinPow(len(a))):
-        a.append(0)
+    while low <= high:
+        mid = (low + high)//2
+        if (v == v_bar[mid]):
+            return mid
+        elif (v > v_bar[mid]):
+            low = mid + 1
+        else:
+            high = mid - 1
 
-    b = [0] * (len(a) * 2)
+        if low > high:
+            return low - 1
 
-    for i in range(len(a)):
-        b[i + len(a) - 1] = a[i]
-    for i in range(len(a)-2, -1, -1):
-        b[i] = b[2 * i + 1] + b[2 * i + 2]
+
+
+def makeTree(a,v, tl, tr, b):
+
+    if (tl == tr):
+        b[v] = a[tl]
+    else:
+        tm = (tl + tr) // 2
+        makeTree(a, v*2, tl, tm, b)
+        makeTree(a, v*2+1, tm+1, tr, b)
+        b[v] = b[v*2] + b[v*2 + 1]
+
 
     return b
 
@@ -40,24 +52,15 @@ def requestTree(l, r, n, b):
 
     return sum
 
-def requestTreeLinks(x1, x2, tree_mod_links):
+def requestTreeLinks(x1, x2, tree_mod_links, n):
     tree = tree_mod_links[x1]
-    print(tree)
 
-    i = x2
-    sum = tree[i]
-    while i != 0:
-        i = i // 2
-        sum += tree[i]
-
-    return sum
+    return getNode(1, x2, 0, n - 1, tree)
 
 
 def getNode(node, x, l, r, b):
-    print(node, l, r)
 
     if (l == r):
-        print(l)
         return b[node]
     else:
         mid = (l + r) // 2
@@ -70,7 +73,7 @@ def getNode(node, x, l, r, b):
 
 #[l, r)
 def changeMod(node, begin, end, l, r, x):
-    print(node, l, r)
+
     if (l > r):
         return 0
 
@@ -90,7 +93,7 @@ x_bar = set([])
 y_bar = set([])
 y_events = []
 dict = {}
-
+dict_x = {}
 counter = 0
 for i in range(n):
 
@@ -113,21 +116,26 @@ y_bar.sort()
 
 y_events.sort(key=lambda x: (-x[2], x[1] if x[2] < 0 else x[0], x[0] if x[2] < 0 else x[1]))
 
-print(y_bar)
-print(y_events)
 for i in range(len(y_bar)):
     dict[y_bar[i]] = i
+
+for i in range(len(x_bar)):
+    dict_x[x_bar[i]] = i
 
 for i in range(len(y_events)):
     y_events[i][0] = dict.get(y_events[i][0])
     y_events[i][1] = dict.get(y_events[i][1])
-print(y_events)
 
 nodes = len(x_bar) - 1
 tree_links = [None] * len(x_bar)
-tree_mod_links = [None] * len(x_bar)
-print(tree_mod_links)
-b = makeTree(x_bar)
+tree_mod_links = [None] * len(y_events)
+
+b = [0] * len(y_bar) * 2**2
+
+for i in range(len(y_bar)):
+    b[i] = y_bar[i]
+
+makeTree(y_bar, 1, 0, len(y_bar) - 1, b)
 mod = [0] * len(b)
 
 counter = 0
@@ -135,15 +143,23 @@ for event in y_events:
     x1 = event[0]
     x2 = event[1]
 
-    changeMod(0, 0, len(mod) - 1, x1, x2, event[2])
-    tree_links[counter] = copy.deepcopy(b)
+    changeMod(1, 0, len(y_bar) - 1, x1, x2, event[2])
     tree_mod_links[counter] = copy.deepcopy(mod)
     counter += 1
 
-
 n = int(input())
+ans = ""
 for i in range(n):
     x1, x2 = map(int, input().split())
-    x1 = dict.get(x1)
+
+    if dict_x.get(x1) == None:
+        x1 = x_bar[compressValue(x1, x_bar)]
+    if dict.get(x2) == None:
+        x2 = y_bar[compressValue(x2, y_bar)]
+
+    x1 = dict_x.get(x1)
     x2 = dict.get(x2)
-    print(requestTreeLinks(x1 - 1, x2 - 1, tree_mod_links))
+
+    ans += str(requestTreeLinks(x1, x2, tree_mod_links, len(y_bar))) + " "
+
+print(ans)
