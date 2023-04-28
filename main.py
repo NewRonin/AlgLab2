@@ -40,21 +40,47 @@ def requestTree(l, r, n, b):
 
     return sum
 
+def requestTreeLinks(x1, x2, tree_mod_links):
+    tree = tree_mod_links[x1]
+    print(tree)
+
+    i = x2
+    sum = tree[i]
+    while i != 0:
+        i = i // 2
+        sum += tree[i]
+
+    return sum
+
+
+def getNode(node, x, l, r, b):
+    print(node, l, r)
+
+    if (l == r):
+        print(l)
+        return b[node]
+    else:
+        mid = (l + r) // 2
+        if (x <= mid):
+            return b[node] + getNode(node * 2, x, l, mid, b)
+        else:
+            return b[node] + getNode((node * 2) + 1, x, mid+1, r, b)
+
+
+
 #[l, r)
-def changeMod(l, r, n, mod, x):
-    l += n
-    r += n
+def changeMod(node, begin, end, l, r, x):
+    print(node, l, r)
+    if (l > r):
+        return 0
 
-    while (l < r):
-        if (l % 2 > 0):
-            mod[l - 1] += x
-            l += 1
-        if (r % 2 > 0):
-            r -= 1
-            mod[r - 1] += x
+    if (l == begin and r == end):
+        mod[node] += x
 
-        l = l // 2
-        r = r // 2
+    else:
+        mid = (begin + end) // 2
+        changeMod(node * 2, begin, mid, l, min(r, mid), x)
+        changeMod(node * 2 + 1, mid + 1, end, max(l, mid+1), r, x)
 
 
 
@@ -62,8 +88,10 @@ n = int(input())
 points = []
 x_bar = set([])
 y_bar = set([])
-x_events = []
+y_events = []
+dict = {}
 
+counter = 0
 for i in range(n):
 
     x1, y1, x2, y2 = map(int, input().split())
@@ -72,7 +100,8 @@ for i in range(n):
     x_bar.add(x2)
     y_bar.add(y2)
 
-    x_events.append([x1, x2])
+    y_events.append([y1, y2, 1])
+    y_events.append([y1, y2, -1])
 
     points.append([x1, y1])
     points.append([x2, y2])
@@ -82,26 +111,39 @@ y_bar = list(y_bar)
 x_bar.sort()
 y_bar.sort()
 
-x_events.sort()
+y_events.sort(key=lambda x: (-x[2], x[1] if x[2] < 0 else x[0], x[0] if x[2] < 0 else x[1]))
+
+print(y_bar)
+print(y_events)
+for i in range(len(y_bar)):
+    dict[y_bar[i]] = i
+
+for i in range(len(y_events)):
+    y_events[i][0] = dict.get(y_events[i][0])
+    y_events[i][1] = dict.get(y_events[i][1])
+print(y_events)
+
 nodes = len(x_bar) - 1
 tree_links = [None] * len(x_bar)
 tree_mod_links = [None] * len(x_bar)
+print(tree_mod_links)
 b = makeTree(x_bar)
 mod = [0] * len(b)
 
-print(x_events)
-print(requestTree(0, 5, len(b) // 2, b))
-changeMod(1, 3, len(mod) // 2, mod, 1)
-
 counter = 0
-for event in x_events:
+for event in y_events:
     x1 = event[0]
     x2 = event[1]
 
-    changeMod(x1, x2, len(mod) // 2, mod, 1)
+    changeMod(0, 0, len(mod) - 1, x1, x2, event[2])
     tree_links[counter] = copy.deepcopy(b)
     tree_mod_links[counter] = copy.deepcopy(mod)
     counter += 1
 
 
-print(tree_mod_links)
+n = int(input())
+for i in range(n):
+    x1, x2 = map(int, input().split())
+    x1 = dict.get(x1)
+    x2 = dict.get(x2)
+    print(requestTreeLinks(x1 - 1, x2 - 1, tree_mod_links))
