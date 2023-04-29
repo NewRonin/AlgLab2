@@ -95,71 +95,78 @@ y_events = []
 dict = {}
 dict_x = {}
 counter = 0
-for i in range(n):
 
-    x1, y1, x2, y2 = map(int, input().split())
-    x_bar.add(x1)
-    y_bar.add(y1)
-    x_bar.add(x2)
-    y_bar.add(y2)
+if (n == 0):
+    m = int(input())
+    for i in range(m):
+        x1, x2 = map(int, input().split())
+    print("0 " * m)
+else:
+    for i in range(n):
 
-    y_events.append([y1, y2, 1, x1])
-    y_events.append([y1, y2, -1, x2])
+        x1, y1, x2, y2 = map(int, input().split())
+        x_bar.add(x1)
+        y_bar.add(y1)
+        x_bar.add(x2)
+        y_bar.add(y2)
 
-    points.append([x1, y1])
-    points.append([x2, y2])
+        y_events.append([y1, y2, 1, x1])
+        y_events.append([y1, y2, -1, x2])
 
-x_bar = list(x_bar)
-y_bar = list(y_bar)
-x_bar.sort()
-y_bar.sort()
+        points.append([x1, y1])
+        points.append([x2, y2])
 
-y_events.sort(key=lambda x: (x[3], -x[2], x[1] if x[2] < 0 else x[0], x[0] if x[2] < 0 else x[1]))
+    x_bar = list(x_bar)
+    y_bar = list(y_bar)
+    x_bar.sort()
+    y_bar.sort()
 
-for i in range(len(y_bar)):
-    dict[y_bar[i]] = i
+    y_events.sort(key=lambda x: (x[3], -x[2], x[1] if x[2] < 0 else x[0], x[0] if x[2] < 0 else x[1]))
 
-for i in range(len(x_bar)):
-    dict_x[x_bar[i]] = i
+    for i in range(len(y_bar)):
+        dict[y_bar[i]] = i
 
-for i in range(len(y_events)):
-    y_events[i][0] = dict.get(y_events[i][0])
-    y_events[i][1] = dict.get(y_events[i][1])
-    y_events[i][3] = dict_x.get(y_events[i][3])
+    for i in range(len(x_bar)):
+        dict_x[x_bar[i]] = i
 
-nodes = len(x_bar) - 1
-tree_links = [None] * len(x_bar)
-tree_mod_links = [None] * len(y_events)
+    for i in range(len(y_events)):
+        y_events[i][0] = dict.get(y_events[i][0])
+        y_events[i][1] = dict.get(y_events[i][1])
+        y_events[i][3] = dict_x.get(y_events[i][3])
 
-b = [0] * len(y_bar) * 2**2
+    nodes = len(x_bar) - 1
+    tree_links = [None] * len(x_bar)
+    tree_mod_links = [None] * len(y_events)
 
-for i in range(len(y_bar)):
-    b[i] = y_bar[i]
+    b = [0] * len(y_bar) * 2**2
 
-makeTree(y_bar, 1, 0, len(y_bar) - 1, b)
-mod = [0] * len(b)
+    for i in range(len(y_bar)):
+        b[i] = y_bar[i]
 
-for event in y_events:
-    x1 = event[0]
-    x2 = event[1]
+    makeTree(y_bar, 1, 0, len(y_bar) - 1, b)
+    mod = [0] * len(b)
+
+    for event in y_events:
+        x1 = event[0]
+        x2 = event[1]
 
 
-    changeMod(1, 0, len(y_bar) - 1, x1, x2 - 1, event[2])
-    tree_mod_links[event[3]] = copy.deepcopy(mod)
+        changeMod(1, 0, len(y_bar) - 1, x1, x2 - 1, event[2])
+        tree_mod_links[event[3]] = copy.deepcopy(mod)
 
-n = int(input())
-ans = ""
-for i in range(n):
-    x1, x2 = map(int, input().split())
+    n = int(input())
+    ans = ""
+    for i in range(n):
+        x1, x2 = map(int, input().split())
 
-    if dict_x.get(x1) == None:
-        x1 = x_bar[compressValue(x1, x_bar)]
-    if dict.get(x2) == None:
-        x2 = y_bar[compressValue(x2, y_bar)]
+        if dict_x.get(x1) == None:
+            x1 = x_bar[compressValue(x1, x_bar)]
+        if dict.get(x2) == None:
+            x2 = y_bar[compressValue(x2, y_bar)]
 
-    x1 = dict_x.get(x1)
-    x2 = dict.get(x2)
+        x1 = dict_x.get(x1)
+        x2 = dict.get(x2)
 
-    ans += str(requestTreeLinks(x1, x2, tree_mod_links, len(y_bar))) + " "
+        ans += str(requestTreeLinks(x1, x2, tree_mod_links, len(y_bar))) + " "
 
-print(ans[:-1])
+    print(ans[:-1])
