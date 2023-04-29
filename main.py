@@ -103,8 +103,8 @@ for i in range(n):
     x_bar.add(x2)
     y_bar.add(y2)
 
-    y_events.append([y1, y2, 1])
-    y_events.append([y1, y2, -1])
+    y_events.append([y1, y2, 1, x1])
+    y_events.append([y1, y2, -1, x2])
 
     points.append([x1, y1])
     points.append([x2, y2])
@@ -114,7 +114,7 @@ y_bar = list(y_bar)
 x_bar.sort()
 y_bar.sort()
 
-y_events.sort(key=lambda x: (-x[2], x[1] if x[2] < 0 else x[0], x[0] if x[2] < 0 else x[1]))
+y_events.sort(key=lambda x: (x[3], -x[2], x[1] if x[2] < 0 else x[0], x[0] if x[2] < 0 else x[1]))
 
 for i in range(len(y_bar)):
     dict[y_bar[i]] = i
@@ -125,6 +125,7 @@ for i in range(len(x_bar)):
 for i in range(len(y_events)):
     y_events[i][0] = dict.get(y_events[i][0])
     y_events[i][1] = dict.get(y_events[i][1])
+    y_events[i][3] = dict_x.get(y_events[i][3])
 
 nodes = len(x_bar) - 1
 tree_links = [None] * len(x_bar)
@@ -138,14 +139,13 @@ for i in range(len(y_bar)):
 makeTree(y_bar, 1, 0, len(y_bar) - 1, b)
 mod = [0] * len(b)
 
-counter = 0
 for event in y_events:
     x1 = event[0]
     x2 = event[1]
 
-    changeMod(1, 0, len(y_bar) - 1, x1, x2, event[2])
-    tree_mod_links[counter] = copy.deepcopy(mod)
-    counter += 1
+
+    changeMod(1, 0, len(y_bar) - 1, x1, x2 - 1, event[2])
+    tree_mod_links[event[3]] = copy.deepcopy(mod)
 
 n = int(input())
 ans = ""
@@ -162,4 +162,4 @@ for i in range(n):
 
     ans += str(requestTreeLinks(x1, x2, tree_mod_links, len(y_bar))) + " "
 
-print(ans)
+print(ans[:-1])
