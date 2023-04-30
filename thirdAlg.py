@@ -70,7 +70,6 @@ def changeMod(node, begin, end, l, r, x):
 
 
 n = int(input())
-points = []
 x_bar = set([])
 y_bar = set([])
 y_events = []
@@ -99,9 +98,6 @@ else:
         y_events.append([y1, y2, 1, x1])
         y_events.append([y1, y2, -1, x2])
 
-        points.append([x1, y1])
-        points.append([x2, y2])
-
     #sort dots
     x_bar = list(x_bar)
     y_bar = list(y_bar)
@@ -123,9 +119,6 @@ else:
         y_events[i][1] = dict.get(y_events[i][1])
         y_events[i][3] = dict_x.get(y_events[i][3])
     #}
-
-    nodes = len(x_bar) - 1
-    tree_links = [None] * len(x_bar)
 
     #creating array of tree roots
     tree_mod_links = [None] * len(y_events)
