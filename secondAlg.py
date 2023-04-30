@@ -18,7 +18,6 @@ def compressValue(v, v_bar):
             return low - 1
 
 n = int(input())
-points = []
 x_bar = set([])
 y_bar = set([])
 dict = {}
@@ -70,19 +69,26 @@ for event in events:
         for j in range(event[1], event[3]):
             matrix[i][j] += 1
 
-n = int(input())
+m = int(input())
 ans = ""
-for i in range(n):
-    x1, x2 = map(int, input().split())
 
-    if dict_x.get(x1) == None:
-        x1 = x_bar[compressValue(x1, x_bar)]
-    if dict.get(x2) == None:
-        x2 = y_bar[compressValue(x2, y_bar)]
+if n == 0:
+    for i in range(m):
+        x1, x2 = map(int, input().split())
+    print("0 " * m)
 
-    x1 = dict_x.get(x1)
-    x2 = dict.get(x2)
-    ans += str(matrix[x1][x2]) + " "
+else:
+    for i in range(m):
+        x1, x2 = map(int, input().split())
 
-print(ans[:-1])
+        if dict_x.get(x1) == None:
+            x1 = x_bar[compressValue(x1, x_bar)]
+        if dict.get(x2) == None:
+            x2 = y_bar[compressValue(x2, y_bar)]
+
+        x1 = dict_x.get(x1)
+        x2 = dict.get(x2)
+        ans += str(matrix[x1][x2]) + " "
+
+    print(ans[:-1])
 
